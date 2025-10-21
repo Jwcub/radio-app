@@ -36,6 +36,7 @@ function displayChannels(srChannels) {
 
     srChannels.forEach(channel => { // Läser igenom alla objekt (kanaler)
         const newListEl = document.createElement("li"); //Skapar <li></li>
+        newListEl.setAttribute("title", channel.tagline); // Lägger till information när man för mus över kanalnamn.
         const newNameEl = document.createTextNode(channel.name); // Textsträng med kanalnamn
 
         newListEl.appendChild(newNameEl); // Lägger till kanalnamn i listelementet
