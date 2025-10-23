@@ -4,25 +4,37 @@
 
 /*  Delar till ej obligatorisk funktionalitet, som kan ge poäng för högre betyg
 *   Radera rader för funktioner du vill visa på webbsidan. */
-document.getElementById("player").style.display = "none";      // Radera denna rad för att visa musikspelare
-document.getElementById("shownumrows").style.display = "none"; // Radera denna rad för att visa antal träffar
+// document.getElementById("player").style.display = "none";      // Radera denna rad för att visa musikspelare
+// document.getElementById("shownumrows").style.display = "none"; // Radera denna rad för att visa antal träffar
 
 /* Här under börjar du skriva din JavaScript-kod */
 window.onload = init;
 
 function init() {
 
-    getChannels();
+    getChannels(10);
+    document.getElementById("numrows").addEventListener("change", addChannels); // Händelselyssnare för att välja antal kanaler som ska visas
 
 };
 
+    // Funktion för att hämta valt antal kanaler
+function addChannels() {
+    const numrowsValue = document.getElementById("numrows").value;
+    getChannels(numrowsValue)
+}
+
 // Hämta kanaler från Sveriges Radio (SR)
-function getChannels() {
-    const url = "http://api.sr.se/api/v2/channels?format=json&size=10";
-    
+function getChannels(numberOfChannels) {
+    const mainNavListEl = document.getElementById("mainnavlist");
+    mainNavListEl.innerHTML = "";
+
+    const url = "http://api.sr.se/api/v2/channels?format=json&size=" + numberOfChannels;
+
     fetch(url)
         .then(res => res.json())
-        .then(data => displayChannels(data.channels))
+        .then(data => {
+            displayChannels(data.channels)
+            listChannelsInPlayer(data.channels)})
         .catch(error => console.log("Det blev ett fel! Felmeddelande: " + error))
 }
 
@@ -32,8 +44,7 @@ function displayChannels(srChannels) {
 
     if(srChannels.lenght < 0){ // Felmeddelande om inga kanaler finns. 
         channelListEl.innerHTML = "<li>Inga kanaler tillgängliga</li>"; 
-    return;
-    } 
+    return; }
 
     srChannels.forEach(channel => { // Läser igenom alla objekt (kanaler)
         const newListEl = document.createElement("li"); //Skapar <li></li>
@@ -50,7 +61,7 @@ function displayChannels(srChannels) {
 
 // Funktion för att hämta hem information om program
 function getPrograms(id) {
-    const url = "http://api.sr.se/api/v2/scheduledepisodes?format=json&size=999&channelid=" + id
+    const url = "http://api.sr.se/api/v2/scheduledepisodes?format=json&size=999&channelid=" + id;
 
     fetch(url)
     .then(res => res.json())
@@ -119,3 +130,4 @@ function convertTime(time) {
 
     return hours + ":" + minutes;
 }
+
