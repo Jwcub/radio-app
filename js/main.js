@@ -14,7 +14,7 @@ function init() {
 
     getChannels(10);
     document.getElementById("numrows").addEventListener("change", addChannels); // Händelselyssnare för att välja antal kanaler som ska visas
-
+    document.getElementById("playbutton").addEventListener("click", playChannel);
 };
 
     // Funktion för att hämta valt antal kanaler
@@ -131,3 +131,36 @@ function convertTime(time) {
     return hours + ":" + minutes;
 }
 
+function listChannelsInPlayer(srChannels) {
+    const playChannelEl = document.getElementById("playchannel");
+    playChannelEl.innerHTML = "";
+   
+    srChannels.forEach(channel => {
+    const optionEl = document.createElement("option");
+    optionEl.innerHTML = channel.name; 
+    optionEl.setAttribute("value", channel.id)
+
+    playChannelEl.appendChild(optionEl);
+    })
+}
+
+// Funktion för att spela radiokanaler
+function playChannel() {
+    const channelId = document.getElementById("playchannel").value; // Värde för KanalId
+    const audioUrl = "http://www.sverigesradio.se/topsy/direkt/srapi/" + channelId
+
+    const radioPlayerEl = document.getElementById("radioplayer");
+    radioPlayerEl.innerHTML = ""; // Tar bort dubletter av spelare
+
+    // Skapa element för radiospelare
+    const audioPlayerEl = document.createElement("audio");
+    audioPlayerEl.setAttribute("controls", "");
+    audioPlayerEl.setAttribute("autoplay", "");
+    const sourceEl = document.createElement("source");
+    sourceEl.setAttribute("src", audioUrl);
+    sourceEl.setAttribute("type", "audio/mpeg");
+
+    // Skriv ut till DOM
+    audioPlayerEl.appendChild(sourceEl);
+    radioPlayerEl.appendChild(audioPlayerEl);
+}
