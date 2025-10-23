@@ -16,6 +16,7 @@ function init() {
 
 };
 
+// Hämta kanaler från Sveriges Radio (SR)
 function getChannels() {
     const url = "http://api.sr.se/api/v2/channels?format=json&size=10";
     
@@ -49,7 +50,7 @@ function displayChannels(srChannels) {
 
 // Funktion för att hämta hem information om program
 function getPrograms(id) {
-    const url = "http://api.sr.se/api/v2/scheduledepisodes?format=json&channelid=" + id
+    const url = "http://api.sr.se/api/v2/scheduledepisodes?format=json&size=999&channelid=" + id
 
     fetch(url)
     .then(res => res.json())
@@ -70,28 +71,51 @@ function displayPrograms(programList) {
     // Itererar genom program
     programList.forEach(program => {
 
-    // SKAPA IF-SATS HÄR SOM KOLLAR OM PROGRAMMET REDAN VARIT. 
-    // OM VARIT, SKRIV INTE UT TILL DOM. ANNARS SKRIV UT.
+        // Bearbeta start och sluttid för program
+        const currentTime = Date.now(); // Tid nu i ms.
 
-        // Skapar HTML-element
-        const articleEl = document.createElement("article");
-        const titleEl = document.createElement("h3");
-        const subtitleEl = document.createElement("h4");
-        const timeEl = document.createElement("h5");
-        const descriptionEl = document.createElement("p");
+        const startTimeMs = parseInt(program.starttimeutc.slice(6,-2));
+        const endTimeMs = parseInt(program.endtimeutc.slice(6,-2));
+        const endTimeDateFormat = new Date(endTimeMs);
 
-        titleEl.innerHTML = program.title; // Lägger till titel
-        if(program.subtitle === undefined){ // Kollar om det finns subtitle
+        // Om programmet redan slutat, skriv inte ut till DOM
+        if(endTimeDateFormat < currentTime) {    
         } else {
-            subtitleEl.innerHTML = program.subtitle;
+            // Skapa HTML-element
+            const articleEl = document.createElement("article");
+            const titleEl = document.createElement("h3");
+            const subtitleEl = document.createElement("h4");
+            const timeEl = document.createElement("h5");
+            const descriptionEl = document.createElement("p");
+
+            // Lägg till innehåll innanför skapade HTML-taggar
+            titleEl.innerHTML = program.title; // Lägger till titel
+            if(program.subtitle === undefined){ // Kollar om det finns subtitle
+            } else {
+                subtitleEl.innerHTML = program.subtitle; //Lägger till subtitle
+            }
+            timeEl.innerHTML = "Tid: " + convertTime(startTimeMs) + " - " + convertTime(endTimeMs); 
+            descriptionEl.innerHTML = program.description; // Lägger till beskrivning
+
+            // Slår ihop element
+            articleEl.appendChild(titleEl);
+            articleEl.appendChild(subtitleEl);
+            articleEl.appendChild(timeEl);
+            articleEl.appendChild(descriptionEl);
+            programListEl.appendChild(articleEl);
         }
-        descriptionEl.innerHTML = program.description; // Lägger till beskrivning
-
-        // Slår ihop element
-        articleEl.appendChild(titleEl);
-        articleEl.appendChild(subtitleEl);
-        articleEl.appendChild(descriptionEl);
-        programListEl.appendChild(articleEl);
     });
+}
 
+// Konvertera tid till format 00:00
+function convertTime(time) {
+    const tempDate = new Date(time);
+
+    let hours = tempDate.getHours();
+    let minutes = tempDate.getMinutes();
+
+    if(hours < 10){ hours = "0" + hours} 
+    if(minutes < 10){ minutes = "0" + minutes}
+
+    return hours + ":" + minutes;
 }
