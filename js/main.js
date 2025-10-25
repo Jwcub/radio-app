@@ -12,9 +12,10 @@ window.onload = init;
 
 function init() {
 
-    getChannels(10);
+    getChannels(10); // Vid start hämtar programmet tio kanaler
     document.getElementById("numrows").addEventListener("change", addChannels); // Händelselyssnare för att välja antal kanaler som ska visas
-    document.getElementById("playbutton").addEventListener("click", playChannel);
+    document.getElementById("playbutton").addEventListener("click", playChannel); // Händelselyssnare för att spela upp radioprogram
+    getStartMessage();
 };
 
     // Funktion för att hämta valt antal kanaler
@@ -49,13 +50,21 @@ function displayChannels(srChannels) {
     srChannels.forEach(channel => { // Läser igenom alla objekt (kanaler)
         const newListEl = document.createElement("li"); //Skapar <li></li>
         newListEl.setAttribute("title", channel.tagline); // Lägger till information när man för mus över kanalnamn.
+
         const newNameEl = document.createTextNode(channel.name); // Textsträng med kanalnamn
 
         newListEl.appendChild(newNameEl); // Lägger till kanalnamn i listelementet
         channelListEl.appendChild(newListEl); // Lägger till listelementet i listraden på webbplats
 
         let channelId = channel.id;
-        newListEl.addEventListener("click", () => getPrograms(channelId), false);
+        newListEl.addEventListener("click", () => { 
+            
+            // Lägger till information om radiokanal i listan med program.
+            const programListEl = document.getElementById("info");
+            programListEl.innerHTML = `<div style="display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; gap: 0 15px; background: #efefef; padding: 20px; border-radius: 10px; margin-bottom: 10px;"><div style="grid-area: 1 / 1 / 3 / 2;"><img src="${channel.image}" width="150" alt="SR Kanal - bild"></div> <div style="grid-area: 1 / 2 / 2 / 3; align-self: end;"><h2>${channel.name}</h2></div> <div style="grid-area: 2 / 2 / 3 / 3;"><p>${channel.tagline}</p> <a href="${channel.siteurl}">${channel.siteurl.slice(12)}</a></div>`;
+
+            getPrograms(channelId);
+        });
     });
 }
 
@@ -72,9 +81,9 @@ function getPrograms(id) {
 // Funktion för att visa programtablå i DOM
 function displayPrograms(programList) {
     const programListEl = document.getElementById("info");
-    programListEl.innerHTML = "";
 
-    if(programList.lenght < 0){ // Felmeddelande om inga kanaler finns. 
+    // Felmeddelande om inga kanaler finns. 
+    if(programList.lenght < 0){ 
        programListEl.innerHTML = "<b>Inga program är tillgängliga...</b>";
     return;
     } 
@@ -163,4 +172,9 @@ function playChannel() {
     // Skriv ut till DOM
     audioPlayerEl.appendChild(sourceEl);
     radioPlayerEl.appendChild(audioPlayerEl);
+}
+
+function getStartMessage() {
+    const infoEl = document.getElementById("info");
+    infoEl.innerHTML = "<h2>Välkommen till tablåer för Sveriges Radio</h2> Denna applikation använder Sveriges Radios öppna API för tablåer. Välj en kanal i listan till vänster för att visa tablå för kanalen.<p>"
 }
