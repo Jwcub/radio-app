@@ -12,16 +12,30 @@ window.onload = init;
 
 function init() {
 
-    getChannels(10); // Vid start hämtar programmet tio kanaler
+    getStoredChannelslist();
     document.getElementById("numrows").addEventListener("change", addChannels); // Händelselyssnare för att välja antal kanaler som ska visas
     document.getElementById("playbutton").addEventListener("click", playChannel); // Händelselyssnare för att spela upp radioprogram
-    getStartMessage();
+    getStoredChannel();
 };
 
-    // Funktion för att hämta valt antal kanaler
+// Funktion som hämtar tidigare antal lagrade radiokanaler
+function getStoredChannelslist() {
+    const numberOfChannels = localStorage.getItem("numberOfChannels")
+    if(numberOfChannels > 0){
+        getChannels(numberOfChannels); // Om kanaler är lagrade hämta dem
+    } else {
+        getChannels(10); // Hämta 10 kanaler om inte antal kanaler lagrats tidigare
+    }
+}
+
+ // Funktion för att hämta valt antal kanaler
 function addChannels() {
     const numrowsValue = document.getElementById("numrows").value;
-    getChannels(numrowsValue)
+
+    // Lagra antal valda kanaler LocalStorage
+    localStorage.setItem("numberOfChannels", numrowsValue);
+
+    getChannels(numrowsValue);
 }
 
 // Hämta kanaler från Sveriges Radio (SR)
@@ -58,10 +72,13 @@ function displayChannels(srChannels) {
 
         let channelId = channel.id;
         newListEl.addEventListener("click", () => { 
-            
+
+            // Lagra vald radiokanl i Local Storage
+            localStorage.setItem("myChannel", channelId);
+
             // Lägger till information om radiokanal i listan med program.
             const programListEl = document.getElementById("info");
-            programListEl.innerHTML = `<div style="display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; gap: 0 15px; background: #efefef; padding: 20px; border-radius: 10px; margin-bottom: 10px;"><div style="grid-area: 1 / 1 / 3 / 2;"><img src="${channel.image}" width="150" alt="SR Kanal - bild"></div> <div style="grid-area: 1 / 2 / 2 / 3; align-self: end;"><h2>${channel.name}</h2></div> <div style="grid-area: 2 / 2 / 3 / 3;"><p>${channel.tagline}</p> <a href="${channel.siteurl}">${channel.siteurl.slice(12)}</a></div>`;
+            programListEl.innerHTML = `<div style="display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; gap: 0 15px; background: #f4f3f3; padding: 20px; border-radius: 10px; margin-bottom: 10px;"><div style="grid-area: 1 / 1 / 3 / 2;"><img src="${channel.image}" width="150" alt="SR Kanal - bild"></div> <div style="grid-area: 1 / 2 / 2 / 3; align-self: end;"><h2>${channel.name}</h2></div> <div style="grid-area: 2 / 2 / 3 / 3;"><p>${channel.tagline}</p> <a href="${channel.siteurl}">${channel.siteurl.slice(12)}</a></div>`;
 
             getPrograms(channelId);
         });
@@ -140,6 +157,7 @@ function convertTime(time) {
     return hours + ":" + minutes;
 }
 
+// Funktion för att skriva ut lista med kanaler till radio-"väljare"
 function listChannelsInPlayer(srChannels) {
     const playChannelEl = document.getElementById("playchannel");
     playChannelEl.innerHTML = "";
@@ -174,7 +192,18 @@ function playChannel() {
     radioPlayerEl.appendChild(audioPlayerEl);
 }
 
-function getStartMessage() {
-    const infoEl = document.getElementById("info");
-    infoEl.innerHTML = "<h2>Välkommen till tablåer för Sveriges Radio</h2> Denna applikation använder Sveriges Radios öppna API för tablåer. Välj en kanal i listan till vänster för att visa tablå för kanalen.<p>"
+function getStoredChannel() {
+
+    const myStoredChannel = localStorage.getItem("myChannel");
+
+    if(myStoredChannel>0) {
+        
+        getPrograms(myStoredChannel);
+
+    } else {
+        const infoEl = document.getElementById("info");
+        infoEl.innerHTML = "<h2>Välkommen till tablåer för Sveriges Radio</h2> Denna applikation använder Sveriges Radios öppna API för tablåer. Välj en kanal i listan till vänster för att visa tablå för kanalen.<p>"
+    }
 }
+
+    
