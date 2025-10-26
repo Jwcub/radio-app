@@ -2,29 +2,25 @@
 
 "use strict";
 
-/*  Delar till ej obligatorisk funktionalitet, som kan ge poäng för högre betyg
-*   Radera rader för funktioner du vill visa på webbsidan. */
-// document.getElementById("player").style.display = "none";      // Radera denna rad för att visa musikspelare
-// document.getElementById("shownumrows").style.display = "none"; // Radera denna rad för att visa antal träffar
-
 /* Här under börjar du skriva din JavaScript-kod */
 window.onload = init;
 
 function init() {
 
-    getStoredChannelslist();
+    getStoredChannelslist(); // Hämtar lagrat värde för antal kanaler som ska visas
     document.getElementById("numrows").addEventListener("change", addChannels); // Händelselyssnare för att välja antal kanaler som ska visas
     document.getElementById("playbutton").addEventListener("click", playChannel); // Händelselyssnare för att spela upp radioprogram
-    getStoredChannel();
+    getStoredChannel(); // Hämtar tablå till lagrad kanal
 };
 
-// Funktion som hämtar tidigare antal lagrade radiokanaler
+// Funktion som hämtar antal LAGRADE radiokanaler
 function getStoredChannelslist() {
     const numberOfChannels = localStorage.getItem("numberOfChannels")
-    if(numberOfChannels > 0){
-        getChannels(numberOfChannels); // Om kanaler är lagrade hämta dem
+    
+    if(numberOfChannels === ""){
+        getChannels(10); // Om det inte finns några antal tidigare visade kanaler, visa 10. 
     } else {
-        getChannels(10); // Hämta 10 kanaler om inte antal kanaler lagrats tidigare
+        getChannels(numberOfChannels); // Annars, hämta tidigare antal valda kanlaler. 
     }
 }
 
@@ -50,7 +46,7 @@ function getChannels(numberOfChannels) {
         .then(data => {
             displayChannels(data.channels)
             listChannelsInPlayer(data.channels)})
-        .catch(error => console.log("Det blev ett fel! Felmeddelande: " + error))
+        .catch(error => console.log("Det blev ett fel! Felmeddelande: " + error));
 }
 
 // Skriv ut kanalnamn som listelement i DOM. 
@@ -63,7 +59,7 @@ function displayChannels(srChannels) {
 
     srChannels.forEach(channel => { // Läser igenom alla objekt (kanaler)
         const newListEl = document.createElement("li"); //Skapar <li></li>
-        newListEl.setAttribute("title", channel.tagline); // Lägger till information när man för mus över kanalnamn.
+        newListEl.setAttribute("title", channel.tagline); // Lägger till information när man för muspekaren över kanalnamn.
 
         const newNameEl = document.createTextNode(channel.name); // Textsträng med kanalnamn
 
@@ -71,15 +67,11 @@ function displayChannels(srChannels) {
         channelListEl.appendChild(newListEl); // Lägger till listelementet i listraden på webbplats
 
         let channelId = channel.id;
-        newListEl.addEventListener("click", () => { 
-
-            // Lagra vald radiokanl i Local Storage
+        newListEl.addEventListener("click", () => {  // Evenlyssnare för klick på kanalnamn. Visar kanalinfo och tablå i högerspalt. 
+            // Lagra vald radiokanal i Local Storage
             localStorage.setItem("myChannel", channelId);
 
-            // Lägger till information om radiokanal i listan med program.
-            const programListEl = document.getElementById("info");
-            programListEl.innerHTML = `<div style="display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; gap: 0 15px; background: #f4f3f3; padding: 20px; border-radius: 10px; margin-bottom: 10px;"><div style="grid-area: 1 / 1 / 3 / 2;"><img src="${channel.image}" width="150" alt="SR Kanal - bild"></div> <div style="grid-area: 1 / 2 / 2 / 3; align-self: end;"><h2>${channel.name}</h2></div> <div style="grid-area: 2 / 2 / 3 / 3;"><p>${channel.tagline}</p> <a href="${channel.siteurl}">${channel.siteurl.slice(12)}</a></div>`;
-
+            getChannelInfo(channelId);
             getPrograms(channelId);
         });
     });
@@ -92,7 +84,7 @@ function getPrograms(id) {
     fetch(url)
     .then(res => res.json())
     .then(data => displayPrograms(data.schedule))
-    .catch(error => console.log("Det blev ett fel! Felmeddelande: " + error))
+    .catch(error => console.log("Det blev ett fel! Felmeddelande: " + error));
 }
 
 // Funktion för att visa programtablå i DOM
@@ -109,10 +101,10 @@ function displayPrograms(programList) {
     programList.forEach(program => {
 
         // Bearbeta start och sluttid för program
-        const currentTime = Date.now(); // Tid nu i ms.
+        const currentTime = Date.now(); // Nuvarande datum i millisekunder. 
 
-        const startTimeMs = parseInt(program.starttimeutc.slice(6,-2));
-        const endTimeMs = parseInt(program.endtimeutc.slice(6,-2));
+        const startTimeMs = parseInt(program.starttimeutc.slice(6,-2)); // Bearbetar textsträng med starttid och gör om till heltal
+        const endTimeMs = parseInt(program.endtimeutc.slice(6,-2)); // Bearbetar textsträng med sluttid och gör om till heltal
         const endTimeDateFormat = new Date(endTimeMs);
 
         // Om programmet redan slutat, skriv inte ut till DOM
@@ -161,11 +153,17 @@ function convertTime(time) {
 function listChannelsInPlayer(srChannels) {
     const playChannelEl = document.getElementById("playchannel");
     playChannelEl.innerHTML = "";
-   
+
+    const storedChannel = localStorage.getItem("myChannel");
+
     srChannels.forEach(channel => {
     const optionEl = document.createElement("option");
     optionEl.innerHTML = channel.name; 
-    optionEl.setAttribute("value", channel.id)
+    optionEl.setAttribute("value", channel.id);
+
+    if(storedChannel == channel.id){
+        optionEl.selected = true;
+    }
 
     playChannelEl.appendChild(optionEl);
     })
@@ -174,10 +172,10 @@ function listChannelsInPlayer(srChannels) {
 // Funktion för att spela radiokanaler
 function playChannel() {
     const channelId = document.getElementById("playchannel").value; // Värde för KanalId
-    const audioUrl = "http://www.sverigesradio.se/topsy/direkt/srapi/" + channelId
+    const audioUrl = "http://www.sverigesradio.se/topsy/direkt/srapi/" + channelId;
 
     const radioPlayerEl = document.getElementById("radioplayer");
-    radioPlayerEl.innerHTML = ""; // Tar bort dubletter av spelare
+    radioPlayerEl.innerHTML = ""; // Tar bort dubletter av radiospelare
 
     // Skapa element för radiospelare
     const audioPlayerEl = document.createElement("audio");
@@ -192,18 +190,29 @@ function playChannel() {
     radioPlayerEl.appendChild(audioPlayerEl);
 }
 
+// Funktion för att hämta lagrad tablå. 
 function getStoredChannel() {
-
+    const programListEl = document.getElementById("info");
     const myStoredChannel = localStorage.getItem("myChannel");
 
-    if(myStoredChannel>0) {
-        
+    if(myStoredChannel > 0) {
+        getChannelInfo(myStoredChannel);
         getPrograms(myStoredChannel);
-
     } else {
-        const infoEl = document.getElementById("info");
-        infoEl.innerHTML = "<h2>Välkommen till tablåer för Sveriges Radio</h2> Denna applikation använder Sveriges Radios öppna API för tablåer. Välj en kanal i listan till vänster för att visa tablå för kanalen.<p>"
+        programListEl.innerHTML = "<h2>Välkommen till tablåer för Sveriges Radio</h2> <p>Denna webb-applikation använder Sveriges Radios öppna API för att visa tablåer och spela ljud. Välj kanal till höger för att se tablå. </p>"
     }
 }
 
+// Funktion för att hämta kanalinformation och visa ovanför tablå
+function getChannelInfo(id) {
+    const programListEl = document.getElementById("info");
+    const url = "http://api.sr.se/api/v2/channels/" + id + "?format=json";
+
+    fetch(url)
+    .then(res => res.json())
+    .then(data => {
+        programListEl.innerHTML = `<div style="display: grid; grid-template-columns: auto auto; grid-template-rows: 75px 75px; gap: 0 15px; background: #f4f3f3; padding: 20px; border-radius: 10px; margin-bottom: 10px;"><div style="grid-area: 1 / 1 / 3 / 2;"><img src="${data.channel.image}" width="150" alt="SR Kanal - bild" style="border-radius: 5px;"></div> <div style="grid-area: 1 / 2 / 2 / 3; align-self: end;"><h2>${data.channel.name}</h2></div> <div style="grid-area: 2 / 2 / 3 / 3;"><p style="margin: 0; padding: 0;">${data.channel.tagline}</p></div>`;
+    })
+    .catch(error => console.log("Det blev ett fel! Felmeddelande: " + error));
+}
     
