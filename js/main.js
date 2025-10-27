@@ -211,7 +211,7 @@ function getChannelInfo(id) {
     fetch(url)
     .then(res => res.json())
     .then(data => {
-        programListEl.innerHTML = `<div style="display: grid; grid-template-columns: auto auto; grid-template-rows: 75px 75px; gap: 0 15px; background: #f4f3f3; padding: 20px; border-radius: 10px; margin-bottom: 10px;"><div style="grid-area: 1 / 1 / 3 / 2;"><img src="${data.channel.image}" width="150" alt="SR Kanal - bild" style="border-radius: 5px;"></div> <div style="grid-area: 1 / 2 / 2 / 3; align-self: end;"><h2>${data.channel.name}</h2></div> <div style="grid-area: 2 / 2 / 3 / 3;"><p style="margin: 0; padding: 0;">${data.channel.tagline}</p></div>`;
+        programListEl.innerHTML = `<div style="display: grid; grid-template-columns: auto auto; grid-template-rows: auto auto; gap: 0 15px; background: #f4f3f3; padding: 20px; border-radius: 10px; margin-bottom: 10px;"><div style="grid-area: 1 / 1 / 3 / 2;"><img src="${data.channel.image}" width="150" alt="SR Kanal - bild" style="border-radius: 5px;"></div> <div style="grid-area: 1 / 2 / 2 / 3; align-self: end;"><h2>${data.channel.name}</h2></div> <div style="grid-area: 2 / 2 / 3 / 3;"><p style="margin: 0; padding: 0;">${data.channel.tagline}</p></div>`;
     })
     .catch(error => console.log("Det blev ett fel! Felmeddelande: " + error));
 }
