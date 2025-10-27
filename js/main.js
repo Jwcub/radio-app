@@ -17,10 +17,10 @@ function init() {
 function getStoredChannelslist() {
     const numberOfChannels = localStorage.getItem("numberOfChannels")
     
-    if(numberOfChannels === ""){
-        getChannels(10); // Om det inte finns några antal tidigare visade kanaler, visa 10. 
+    if (numberOfChannels === null) {
+        getChannels(10);
     } else {
-        getChannels(numberOfChannels); // Annars, hämta tidigare antal valda kanlaler. 
+        getChannels(numberOfChannels);
     }
 }
 
@@ -203,6 +203,7 @@ function getStoredChannel() {
     }
 }
 
+
 // Funktion för att hämta kanalinformation och visa ovanför tablå
 function getChannelInfo(id) {
     const programListEl = document.getElementById("info");
@@ -215,4 +216,4 @@ function getChannelInfo(id) {
     })
     .catch(error => console.log("Det blev ett fel! Felmeddelande: " + error));
 }
-    
+
