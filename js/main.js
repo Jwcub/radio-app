@@ -39,7 +39,7 @@ function getChannels(numberOfChannels) {
     const mainNavListEl = document.getElementById("mainnavlist");
     mainNavListEl.innerHTML = "";
 
-    const url = "http://api.sr.se/api/v2/channels?format=json&size=" + numberOfChannels;
+    const url = "https://api.sr.se/api/v2/channels?format=json&size=" + numberOfChannels;
 
     fetch(url)
         .then(res => res.json())
@@ -79,7 +79,7 @@ function displayChannels(srChannels) {
 
 // Funktion för att hämta hem information om program
 function getPrograms(id) {
-    const url = "http://api.sr.se/api/v2/scheduledepisodes?format=json&size=999&channelid=" + id;
+    const url = "https://api.sr.se/api/v2/scheduledepisodes?format=json&size=999&channelid=" + id;
 
     fetch(url)
     .then(res => res.json())
@@ -172,7 +172,7 @@ function listChannelsInPlayer(srChannels) {
 // Funktion för att spela radiokanaler
 function playChannel() {
     const channelId = document.getElementById("playchannel").value; // Värde för KanalId
-    const audioUrl = "http://www.sverigesradio.se/topsy/direkt/srapi/" + channelId;
+    const audioUrl = "https://www.sverigesradio.se/topsy/direkt/srapi/" + channelId;
 
     const radioPlayerEl = document.getElementById("radioplayer");
     radioPlayerEl.innerHTML = ""; // Tar bort dubletter av radiospelare
@@ -207,7 +207,7 @@ function getStoredChannel() {
 // Funktion för att hämta kanalinformation och visa ovanför tablå
 function getChannelInfo(id) {
     const programListEl = document.getElementById("info");
-    const url = "http://api.sr.se/api/v2/channels/" + id + "?format=json";
+    const url = "https://api.sr.se/api/v2/channels/" + id + "?format=json";
 
     fetch(url)
     .then(res => res.json())
